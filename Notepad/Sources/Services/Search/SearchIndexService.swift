@@ -1,6 +1,8 @@
 import Foundation
 import SQLite3
 
+private let SQLITE_TRANSIENT = unsafeBitCast(OpaquePointer(bitPattern: -1), to: sqlite3_destructor_type.self)
+
 public struct SearchResult: Identifiable, Sendable, Hashable {
     public var id: UUID { noteId }
     public let noteId: UUID
@@ -74,7 +76,6 @@ public actor SearchIndexService {
             let folderStr = note.folder
             let tagsStr = note.tags.joined(separator: " ")
 
-            let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
             sqlite3_bind_text(stmt, 1, (idStr as NSString).utf8String, -1, SQLITE_TRANSIENT)
             sqlite3_bind_text(stmt, 2, (titleStr as NSString).utf8String, -1, SQLITE_TRANSIENT)
             sqlite3_bind_text(stmt, 3, (contentStr as NSString).utf8String, -1, SQLITE_TRANSIENT)
@@ -92,7 +93,6 @@ public actor SearchIndexService {
         var stmt: OpaquePointer?
         if sqlite3_prepare_v2(db, deleteSQL, -1, &stmt, nil) == SQLITE_OK {
             let idStr = id.uuidString
-            let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
             sqlite3_bind_text(stmt, 1, (idStr as NSString).utf8String, -1, SQLITE_TRANSIENT)
             sqlite3_step(stmt)
         }
@@ -124,7 +124,6 @@ public actor SearchIndexService {
         var results: [SearchResult] = []
 
         if sqlite3_prepare_v2(db, searchSQL, -1, &stmt, nil) == SQLITE_OK {
-            let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
             sqlite3_bind_text(stmt, 1, (cleanQuery as NSString).utf8String, -1, SQLITE_TRANSIENT)
 
             while sqlite3_step(stmt) == SQLITE_ROW {

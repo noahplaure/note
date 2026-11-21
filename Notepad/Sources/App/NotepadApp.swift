@@ -1,5 +1,9 @@
 import SwiftUI
 
+#if canImport(UIKit)
+import UIKit
+#endif
+
 @main
 struct NotepadApp: App {
     @State private var viewModel = NoteListViewModel()
@@ -29,7 +33,6 @@ struct NotepadApp: App {
 
             CommandGroup(after: .textEditing) {
                 Button("Find in Notes") {
-                    // Activate search
                     viewModel.isSearching = true
                 }
                 .keyboardShortcut("f", modifiers: [.command, .shift])

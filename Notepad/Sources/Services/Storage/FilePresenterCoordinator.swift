@@ -1,5 +1,9 @@
 import Foundation
 
+#if canImport(Darwin)
+import Darwin
+#endif
+
 public final class FilePresenterCoordinator: NSObject, NSFilePresenter, @unchecked Sendable {
     public let presentedItemURL: URL?
     public let presentedItemOperationQueue: OperationQueue

@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import UniformTypeIdentifiers
 
 #if canImport(UIKit)
 import UIKit

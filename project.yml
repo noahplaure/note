@@ -2,8 +2,7 @@ name: Notepad
 options:
   bundleIdPrefix: com.notepad
   deploymentTarget:
-    iOS: "26.0"
-  xcodeVersion: "26.0"
+    iOS: "18.0"
   groupSortPosition: top
   createIntermediateGroups: true
   generateEmptyDirectories: true
@@ -12,7 +11,7 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
-    IPHONEOS_DEPLOYMENT_TARGET: "26.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "18.0"
     TARGETED_DEVICE_FAMILY: "1,2"
     ENABLE_USER_SCRIPT_SANDBOXING: false
     ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
@@ -29,7 +28,7 @@ targets:
   Notepad:
     type: application
     platform: iOS
-    deploymentTarget: "26.0"
+    deploymentTarget: "18.0"
     sources:
       - path: Notepad/Sources
       - path: Notepad/Resources
@@ -51,7 +50,7 @@ targets:
   NotepadTests:
     type: bundle.unit-test
     platform: iOS
-    deploymentTarget: "26.0"
+    deploymentTarget: "18.0"
     sources:
       - path: NotepadTests
     dependencies:
@@ -59,8 +58,10 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.notepad.app.tests
-        BUNDLE_LOADER: "$(TEST_HOST)"
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Notepad.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Notepad"
+        ENABLE_TESTING_SEARCH_PATHS: true
+        CODE_SIGNING_ALLOWED: false
+        CODE_SIGNING_REQUIRED: false
+        CODE_SIGN_IDENTITY: ""
         SWIFT_STRICT_CONCURRENCY: complete
 
 schemes:

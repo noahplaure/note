@@ -1,5 +1,9 @@
 import SwiftUI
 
+#if canImport(UIKit)
+import UIKit
+#endif
+
 public struct NoteEditorView: View {
     @Bindable public var viewModel: NoteEditorViewModel
     @Environment(\.dismiss) private var dismiss
@@ -174,13 +178,6 @@ public struct NoteEditorView: View {
             }
         }
         #endif
-        // Hardware Keyboard Shortcuts for iPad
-        .keyboardShortcut("b", modifiers: .command)
-        .keyboardShortcut("i", modifiers: .command)
-        .keyboardShortcut("u", modifiers: .command)
-        .keyboardShortcut("k", modifiers: .command)
-        .keyboardShortcut("f", modifiers: .command)
-        .keyboardShortcut("s", modifiers: .command)
     }
 }
 

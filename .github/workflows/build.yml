@@ -35,28 +35,52 @@ jobs:
       - name: Determine Test Destination
         id: sim_dest
         run: |
-          DEVICE=$(xcrun simctl list devices available | grep -E "iPhone (15|16)" | head -1 | sed -E 's/.*\(([-0-9A-F]+)\).*/\1/')
-          if [ -z "$DEVICE" ]; then
-            DEST="platform=iOS Simulator,name=iPhone 16"
+          UDID=$(xcrun simctl list devices available -j | python3 -c "
+          import sys, json
+          try:
+              data = json.load(sys.stdin)
+              for runtime, devices in data.get('devices', {}).items():
+                  if 'iOS' in runtime:
+                      for d in devices:
+                          if d.get('isAvailable'):
+                              print(d['udid'])
+                              sys.exit(0)
+          except Exception:
+              pass
+          ")
+          if [ -n "$UDID" ]; then
+            echo "destination=id=$UDID" >> "$GITHUB_OUTPUT"
+            echo "Selected Simulator UDID: $UDID"
           else
-            DEST="id=$DEVICE"
+            echo "destination=platform=iOS Simulator,name=iPhone 16" >> "$GITHUB_OUTPUT"
+            echo "Selected default destination: platform=iOS Simulator,name=iPhone 16"
           fi
-          echo "destination=$DEST" >> "$GITHUB_OUTPUT"
 
       - name: Run Tests
+        id: test_step
         run: |
+          set -o pipefail
           xcodebuild test \
             -project Notepad.xcodeproj \
             -scheme Notepad \
             -destination "${{ steps.sim_dest.outputs.destination }}" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY=""
+            CODE_SIGN_IDENTITY="" 2>&1 | tee test_run.log
+
+      - name: Publish Test Summary
+        if: always()
+        run: |
+          echo "### Test Execution Output" >> $GITHUB_STEP_SUMMARY
+          if [ -f test_run.log ]; then
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -n 60 test_run.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
 
   build:
     name: Build Unsigned IPA
     runs-on: macos-latest
-    needs: test
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -78,7 +102,9 @@ jobs:
         run: xcodegen generate
 
       - name: Build & Archive
+        id: archive_step
         run: |
+          set -o pipefail
           xcodebuild archive \
             -project Notepad.xcodeproj \
             -scheme Notepad \
@@ -88,14 +114,24 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            DEVELOPMENT_TEAM=""
+            DEVELOPMENT_TEAM="" 2>&1 | tee archive.log
+
+      - name: Publish Build Summary on Failure
+        if: failure()
+        run: |
+          echo "### Build Archive Failure Log" >> $GITHUB_STEP_SUMMARY
+          if [ -f archive.log ]; then
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -n 80 archive.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Package Unsigned IPA
         run: |
           mkdir -p Payload
           cp -R build/Notepad.xcarchive/Products/Applications/Notepad.app Payload/
-          zip -r Notepad.ipa Payload
-          ls -la Notepad.ipa
+          zip -r -q Notepad.ipa Payload
+          ls -lh Notepad.ipa
 
       - name: Upload Unsigned IPA Artifact
         uses: actions/upload-artifact@v4
