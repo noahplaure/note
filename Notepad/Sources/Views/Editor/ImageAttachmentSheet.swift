@@ -6,6 +6,7 @@ import UniformTypeIdentifiers
 import UIKit
 #endif
 
+@MainActor
 public struct ImageAttachmentSheet: View {
     @Environment(\.dismiss) private var dismiss
 
@@ -62,7 +63,12 @@ public struct ImageAttachmentSheet: View {
                                     .foregroundColor(.secondary)
                             }
                             .padding()
-                            .liquidGlass(cornerRadius: 12)
+                            .background(Color(hex: "#1C1C1E"))
+                            .cornerRadius(12)
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
+                            }
                         }
                         .onChange(of: selectedPhotoItem) { _, newItem in
                             guard let newItem = newItem else { return }
@@ -110,7 +116,12 @@ public struct ImageAttachmentSheet: View {
                                     .foregroundColor(.secondary)
                             }
                             .padding()
-                            .liquidGlass(cornerRadius: 12)
+                            .background(Color(hex: "#1C1C1E"))
+                            .cornerRadius(12)
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
+                            }
                         }
 
                         // 4. From Files
@@ -130,7 +141,12 @@ public struct ImageAttachmentSheet: View {
                                     .foregroundColor(.secondary)
                             }
                             .padding()
-                            .liquidGlass(cornerRadius: 12)
+                            .background(Color(hex: "#1C1C1E"))
+                            .cornerRadius(12)
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
+                            }
                         }
                     }
                     .padding(.horizontal)

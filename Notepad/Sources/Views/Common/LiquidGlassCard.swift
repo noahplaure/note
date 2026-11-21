@@ -1,6 +1,6 @@
 import SwiftUI
 
-public struct LiquidGlassModifier: ViewModifier {
+public struct LiquidGlassModifier: ViewModifier, Sendable {
     public var cornerRadius: CGFloat
     public var borderOpacity: Double
 
