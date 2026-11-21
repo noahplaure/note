@@ -64,17 +64,10 @@ public struct FolderListView: View {
                 Button {
                     isSettingsPresented = true
                 } label: {
-                    ZStack {
-                        Circle()
-                            .fill(Color.white.opacity(0.12))
-                            .frame(width: 34, height: 34)
-                        Image(systemName: "gearshape")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(Color(hex: "#FFD60A"))
-                    }
-                    .frame(width: 34, height: 34)
+                    Image(systemName: "gearshape")
+                        .font(.system(size: 19, weight: .regular))
+                        .foregroundColor(Color(hex: "#FFD60A"))
                 }
-                .buttonStyle(.plain)
             }
         }
         .alert("New Folder", isPresented: $isNewFolderAlertPresented) {

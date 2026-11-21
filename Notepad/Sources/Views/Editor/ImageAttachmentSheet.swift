@@ -65,10 +65,6 @@ public struct ImageAttachmentSheet: View {
                             .padding()
                             .background(Color(hex: "#1C1C1E"))
                             .cornerRadius(12)
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
-                            }
                         }
                         .onChange(of: selectedPhotoItem) { _, newItem in
                             guard let newItem = newItem else { return }
@@ -118,10 +114,6 @@ public struct ImageAttachmentSheet: View {
                             .padding()
                             .background(Color(hex: "#1C1C1E"))
                             .cornerRadius(12)
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
-                            }
                         }
 
                         // 4. From Files
@@ -143,10 +135,6 @@ public struct ImageAttachmentSheet: View {
                             .padding()
                             .background(Color(hex: "#1C1C1E"))
                             .cornerRadius(12)
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
-                            }
                         }
                     }
                     .padding(.horizontal)

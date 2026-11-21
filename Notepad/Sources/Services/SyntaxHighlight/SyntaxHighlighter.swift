@@ -141,11 +141,11 @@ public final class SyntaxHighlighter: @unchecked Sendable {
         return spans
     }
 
-    public func highlight(code: String, language: SyntaxLanguage, theme: SyntaxTheme = .vsCodeDarkPlus) -> AttributedString {
+    public func highlight(code: String, language: SyntaxLanguage, theme: SyntaxTheme = .vsCodeDarkPlus, fontSize: CGFloat = 13.0) -> AttributedString {
         var attrStr = AttributedString(code)
         let plainColor = Color(hex: theme.plainHex)
         attrStr.foregroundColor = plainColor
-        attrStr.font = .system(.body, design: .monospaced)
+        attrStr.font = .system(size: fontSize, design: .monospaced)
 
         let spans = highlightSpans(code: code, language: language)
         let nsCode = code as NSString

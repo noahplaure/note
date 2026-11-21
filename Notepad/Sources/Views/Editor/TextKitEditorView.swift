@@ -130,7 +130,8 @@ public struct TextKitEditorView: UIViewRepresentable {
             defaultParagraph.alignment = .left
             textStorage.addAttribute(.paragraphStyle, value: defaultParagraph, range: fullRange)
 
-            let tagColor = UIColor(white: 1.0, alpha: 0.3)
+            let hiddenFont = UIFont.systemFont(ofSize: 0.001)
+            let hiddenColor = UIColor.clear
             let nsText = text as NSString
 
             // 2. Headings (# H1, ## H2, ### H3)
@@ -140,7 +141,8 @@ public struct TextKitEditorView: UIViewRepresentable {
                     let h1Font = UIFont.systemFont(ofSize: baseFontSize * 1.5, weight: .bold)
                     textStorage.addAttribute(.font, value: h1Font, range: match.range)
                     if match.numberOfRanges > 1 {
-                        textStorage.addAttribute(.foregroundColor, value: tagColor, range: match.range(at: 1))
+                        textStorage.addAttribute(.font, value: hiddenFont, range: match.range(at: 1))
+                        textStorage.addAttribute(.foregroundColor, value: hiddenColor, range: match.range(at: 1))
                     }
                 }
             }
@@ -151,7 +153,8 @@ public struct TextKitEditorView: UIViewRepresentable {
                     let h2Font = UIFont.systemFont(ofSize: baseFontSize * 1.3, weight: .bold)
                     textStorage.addAttribute(.font, value: h2Font, range: match.range)
                     if match.numberOfRanges > 1 {
-                        textStorage.addAttribute(.foregroundColor, value: tagColor, range: match.range(at: 1))
+                        textStorage.addAttribute(.font, value: hiddenFont, range: match.range(at: 1))
+                        textStorage.addAttribute(.foregroundColor, value: hiddenColor, range: match.range(at: 1))
                     }
                 }
             }
@@ -162,7 +165,8 @@ public struct TextKitEditorView: UIViewRepresentable {
                     let h3Font = UIFont.systemFont(ofSize: baseFontSize * 1.15, weight: .semibold)
                     textStorage.addAttribute(.font, value: h3Font, range: match.range)
                     if match.numberOfRanges > 1 {
-                        textStorage.addAttribute(.foregroundColor, value: tagColor, range: match.range(at: 1))
+                        textStorage.addAttribute(.font, value: hiddenFont, range: match.range(at: 1))
+                        textStorage.addAttribute(.foregroundColor, value: hiddenColor, range: match.range(at: 1))
                     }
                 }
             }
@@ -174,10 +178,12 @@ public struct TextKitEditorView: UIViewRepresentable {
                     let boldFont = UIFont.boldSystemFont(ofSize: baseFontSize)
                     textStorage.addAttribute(.font, value: boldFont, range: match.range)
                     if match.numberOfRanges > 1 {
-                        textStorage.addAttribute(.foregroundColor, value: tagColor, range: match.range(at: 1))
+                        textStorage.addAttribute(.font, value: hiddenFont, range: match.range(at: 1))
+                        textStorage.addAttribute(.foregroundColor, value: hiddenColor, range: match.range(at: 1))
                     }
                     if match.numberOfRanges > 3 {
-                        textStorage.addAttribute(.foregroundColor, value: tagColor, range: match.range(at: 3))
+                        textStorage.addAttribute(.font, value: hiddenFont, range: match.range(at: 3))
+                        textStorage.addAttribute(.foregroundColor, value: hiddenColor, range: match.range(at: 3))
                     }
                 }
             }
@@ -189,10 +195,12 @@ public struct TextKitEditorView: UIViewRepresentable {
                     let italicFont = UIFont.italicSystemFont(ofSize: baseFontSize)
                     textStorage.addAttribute(.font, value: italicFont, range: match.range)
                     if match.numberOfRanges > 1 {
-                        textStorage.addAttribute(.foregroundColor, value: tagColor, range: match.range(at: 1))
+                        textStorage.addAttribute(.font, value: hiddenFont, range: match.range(at: 1))
+                        textStorage.addAttribute(.foregroundColor, value: hiddenColor, range: match.range(at: 1))
                     }
                     if match.numberOfRanges > 3 {
-                        textStorage.addAttribute(.foregroundColor, value: tagColor, range: match.range(at: 3))
+                        textStorage.addAttribute(.font, value: hiddenFont, range: match.range(at: 3))
+                        textStorage.addAttribute(.foregroundColor, value: hiddenColor, range: match.range(at: 3))
                     }
                 }
             }
@@ -203,10 +211,14 @@ public struct TextKitEditorView: UIViewRepresentable {
                 for match in matches {
                     textStorage.addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: match.range)
                     if match.numberOfRanges > 1 {
-                        textStorage.addAttribute(.foregroundColor, value: tagColor, range: match.range(at: 1))
+                        textStorage.addAttribute(.font, value: hiddenFont, range: match.range(at: 1))
+                        textStorage.addAttribute(.foregroundColor, value: hiddenColor, range: match.range(at: 1))
+                        textStorage.addAttribute(.underlineStyle, value: 0, range: match.range(at: 1))
                     }
                     if match.numberOfRanges > 3 {
-                        textStorage.addAttribute(.foregroundColor, value: tagColor, range: match.range(at: 3))
+                        textStorage.addAttribute(.font, value: hiddenFont, range: match.range(at: 3))
+                        textStorage.addAttribute(.foregroundColor, value: hiddenColor, range: match.range(at: 3))
+                        textStorage.addAttribute(.underlineStyle, value: 0, range: match.range(at: 3))
                     }
                 }
             }
@@ -217,10 +229,14 @@ public struct TextKitEditorView: UIViewRepresentable {
                 for match in matches {
                     textStorage.addAttribute(.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: match.range)
                     if match.numberOfRanges > 1 {
-                        textStorage.addAttribute(.foregroundColor, value: tagColor, range: match.range(at: 1))
+                        textStorage.addAttribute(.font, value: hiddenFont, range: match.range(at: 1))
+                        textStorage.addAttribute(.foregroundColor, value: hiddenColor, range: match.range(at: 1))
+                        textStorage.addAttribute(.strikethroughStyle, value: 0, range: match.range(at: 1))
                     }
                     if match.numberOfRanges > 3 {
-                        textStorage.addAttribute(.foregroundColor, value: tagColor, range: match.range(at: 3))
+                        textStorage.addAttribute(.font, value: hiddenFont, range: match.range(at: 3))
+                        textStorage.addAttribute(.foregroundColor, value: hiddenColor, range: match.range(at: 3))
+                        textStorage.addAttribute(.strikethroughStyle, value: 0, range: match.range(at: 3))
                     }
                 }
             }
@@ -233,10 +249,12 @@ public struct TextKitEditorView: UIViewRepresentable {
                     textStorage.addAttribute(.font, value: monoFont, range: match.range)
                     textStorage.addAttribute(.backgroundColor, value: UIColor(white: 0.22, alpha: 0.8), range: match.range)
                     if match.numberOfRanges > 1 {
-                        textStorage.addAttribute(.foregroundColor, value: tagColor, range: match.range(at: 1))
+                        textStorage.addAttribute(.font, value: hiddenFont, range: match.range(at: 1))
+                        textStorage.addAttribute(.foregroundColor, value: hiddenColor, range: match.range(at: 1))
                     }
                     if match.numberOfRanges > 3 {
-                        textStorage.addAttribute(.foregroundColor, value: tagColor, range: match.range(at: 3))
+                        textStorage.addAttribute(.font, value: hiddenFont, range: match.range(at: 3))
+                        textStorage.addAttribute(.foregroundColor, value: hiddenColor, range: match.range(at: 3))
                     }
                 }
             }
@@ -255,8 +273,10 @@ public struct TextKitEditorView: UIViewRepresentable {
                     default: paraStyle.alignment = .left
                     }
                     textStorage.addAttribute(.paragraphStyle, value: paraStyle, range: match.range)
-                    textStorage.addAttribute(.foregroundColor, value: tagColor, range: match.range(at: 1))
-                    textStorage.addAttribute(.foregroundColor, value: tagColor, range: match.range(at: 4))
+                    textStorage.addAttribute(.font, value: hiddenFont, range: match.range(at: 1))
+                    textStorage.addAttribute(.foregroundColor, value: hiddenColor, range: match.range(at: 1))
+                    textStorage.addAttribute(.font, value: hiddenFont, range: match.range(at: 4))
+                    textStorage.addAttribute(.foregroundColor, value: hiddenColor, range: match.range(at: 4))
                 }
             }
 
@@ -271,8 +291,12 @@ public struct TextKitEditorView: UIViewRepresentable {
                     if hex.lowercased().contains("ffd60a") || hex.lowercased().contains("ffff") {
                         textStorage.addAttribute(.foregroundColor, value: UIColor.black, range: innerRange)
                     }
-                    textStorage.addAttribute(.foregroundColor, value: tagColor, range: match.range(at: 1))
-                    textStorage.addAttribute(.foregroundColor, value: tagColor, range: match.range(at: 4))
+                    textStorage.addAttribute(.font, value: hiddenFont, range: match.range(at: 1))
+                    textStorage.addAttribute(.foregroundColor, value: hiddenColor, range: match.range(at: 1))
+                    textStorage.addAttribute(.backgroundColor, value: UIColor.clear, range: match.range(at: 1))
+                    textStorage.addAttribute(.font, value: hiddenFont, range: match.range(at: 4))
+                    textStorage.addAttribute(.foregroundColor, value: hiddenColor, range: match.range(at: 4))
+                    textStorage.addAttribute(.backgroundColor, value: UIColor.clear, range: match.range(at: 4))
                 }
             }
 
@@ -284,8 +308,10 @@ public struct TextKitEditorView: UIViewRepresentable {
                     let fg = UIColor(hex: hex)
                     let innerRange = match.range(at: 3)
                     textStorage.addAttribute(.foregroundColor, value: fg, range: innerRange)
-                    textStorage.addAttribute(.foregroundColor, value: tagColor, range: match.range(at: 1))
-                    textStorage.addAttribute(.foregroundColor, value: tagColor, range: match.range(at: 4))
+                    textStorage.addAttribute(.font, value: hiddenFont, range: match.range(at: 1))
+                    textStorage.addAttribute(.foregroundColor, value: hiddenColor, range: match.range(at: 1))
+                    textStorage.addAttribute(.font, value: hiddenFont, range: match.range(at: 4))
+                    textStorage.addAttribute(.foregroundColor, value: hiddenColor, range: match.range(at: 4))
                 }
             }
 

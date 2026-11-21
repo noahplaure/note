@@ -12,6 +12,9 @@ public struct NoteListView: View {
     public var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
+                .onTapGesture {
+                    hideKeyboard()
+                }
 
             VStack(spacing: 8) {
                 // Search bar
@@ -72,6 +75,7 @@ public struct NoteListView: View {
                         }
                     }
                     .scrollContentBackground(.hidden)
+                    .scrollDismissesKeyboard(.interactively)
                     .listStyle(.insetGrouped)
                 }
             }
@@ -79,41 +83,16 @@ public struct NoteListView: View {
         .navigationTitle(viewModel.selectedFolder?.name ?? "Notes")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                HStack(spacing: 8) {
-                    Menu {
-                        Picker("Sort by", selection: $viewModel.sortOption) {
-                            ForEach(SortOption.allCases) { option in
-                                Text(option.rawValue).tag(option)
-                            }
+                Menu {
+                    Picker("Sort by", selection: $viewModel.sortOption) {
+                        ForEach(SortOption.allCases) { option in
+                            Text(option.rawValue).tag(option)
                         }
-                    } label: {
-                        ZStack {
-                            Circle()
-                                .fill(Color.white.opacity(0.12))
-                                .frame(width: 34, height: 34)
-                            Image(systemName: "arrow.up.arrow.down")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(Color(hex: "#FFD60A"))
-                        }
-                        .frame(width: 34, height: 34)
                     }
-                    .buttonStyle(.plain)
-
-                    Button {
-                        _ = viewModel.createNote()
-                    } label: {
-                        ZStack {
-                            Circle()
-                                .fill(Color.white.opacity(0.12))
-                                .frame(width: 34, height: 34)
-                            Image(systemName: "square.and.pencil")
-                                .font(.system(size: 15, weight: .semibold))
-                                .foregroundColor(Color(hex: "#FFD60A"))
-                                .offset(x: 0.5, y: -0.5)
-                        }
-                        .frame(width: 34, height: 34)
-                    }
-                    .buttonStyle(.plain)
+                } label: {
+                    Image(systemName: "arrow.up.arrow.down")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(Color(hex: "#FFD60A"))
                 }
             }
 
@@ -123,18 +102,10 @@ public struct NoteListView: View {
                 Button {
                     _ = viewModel.createNote()
                 } label: {
-                    ZStack {
-                        Circle()
-                            .fill(Color.white.opacity(0.12))
-                            .frame(width: 42, height: 42)
-                        Image(systemName: "square.and.pencil")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(Color(hex: "#FFD60A"))
-                            .offset(x: 0.5, y: -0.5)
-                    }
-                    .frame(width: 42, height: 42)
+                    Image(systemName: "square.and.pencil")
+                        .font(.system(size: 22, weight: .medium))
+                        .foregroundColor(Color(hex: "#FFD60A"))
                 }
-                .buttonStyle(.plain)
             }
         }
         .sheet(isPresented: $isFilterSheetPresented) {
@@ -151,6 +122,7 @@ public struct NoteListView: View {
         NavigationLink(value: note) {
             NoteRowView(note: note)
         }
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .swipeActions(edge: .leading, allowsFullSwipe: false) {
             Button {
                 viewModel.togglePin(for: note)

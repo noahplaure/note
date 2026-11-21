@@ -115,9 +115,5 @@ public struct CodeBlockView: View {
             .background(Color(hex: theme.backgroundHex))
         }
         .cornerRadius(12)
-        .overlay {
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
-        }
     }
 }

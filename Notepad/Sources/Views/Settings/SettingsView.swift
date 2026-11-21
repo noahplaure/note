@@ -87,57 +87,6 @@ public struct SettingsView: View {
                         }
                     }
                     .listRowBackground(Color(hex: "#1C1C1E"))
-
-                    // Environment & LiveContainer
-                    Section("Environment") {
-                        HStack {
-                            Text("Deployment")
-                            Spacer()
-                            Text("iOS 26 / LiveContainer Ready")
-                                .foregroundColor(.secondary)
-                        }
-
-                        HStack {
-                            Text("Format")
-                            Spacer()
-                            Text("CommonMark + GFM (.md)")
-                                .foregroundColor(.secondary)
-                        }
-
-                        HStack {
-                            Text("Documents Path")
-                            Spacer()
-                            Text("Documents/Notepad/")
-                                .foregroundColor(.secondary)
-                                .font(.system(.footnote, design: .monospaced))
-                        }
-                    }
-                    .listRowBackground(Color(hex: "#1C1C1E"))
-
-                    // About
-                    Section("About") {
-                        HStack {
-                            Text("App Name")
-                            Spacer()
-                            Text("Notepad")
-                                .foregroundColor(.secondary)
-                        }
-
-                        HStack {
-                            Text("Version")
-                            Spacer()
-                            Text("1.0.0 (Build 1)")
-                                .foregroundColor(.secondary)
-                        }
-
-                        HStack {
-                            Text("Language")
-                            Spacer()
-                            Text("Swift 6.2 (Strict Concurrency)")
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                    .listRowBackground(Color(hex: "#1C1C1E"))
                 }
                 .scrollContentBackground(.hidden)
             }
