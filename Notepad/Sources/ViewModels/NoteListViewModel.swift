@@ -35,7 +35,7 @@ public final class NoteListViewModel {
 
     private func setupFileWatcher() {
         Task {
-            let baseDir = await storageService.baseDirectory
+            let baseDir = storageService.baseDirectory
             self.fileWatcher = FilePresenterCoordinator(directoryURL: baseDir) { [weak self] in
                 Task { @MainActor [weak self] in
                     self?.loadData()

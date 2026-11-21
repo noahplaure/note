@@ -91,7 +91,7 @@ public struct Note: Identifiable, Sendable, Hashable, Equatable {
                 continue
             }
             // Strip markdown formatting for snippet
-            var cleaned = trimmed
+            let cleaned = trimmed
                 .replacingOccurrences(of: "**", with: "")
                 .replacingOccurrences(of: "*", with: "")
                 .replacingOccurrences(of: "`", with: "")

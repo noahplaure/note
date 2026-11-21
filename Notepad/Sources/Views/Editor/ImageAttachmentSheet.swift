@@ -176,7 +176,7 @@ public struct ImageAttachmentSheet: View {
             if let data = try? await item.loadTransferable(type: Data.self) {
                 #if canImport(UIKit)
                 if let uiImage = UIImage(data: data) {
-                    await processRawImage(uiImage)
+                    processRawImage(uiImage)
                     return
                 }
                 #endif

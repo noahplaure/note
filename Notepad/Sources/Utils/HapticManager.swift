@@ -4,6 +4,7 @@ import SwiftUI
 import UIKit
 #endif
 
+@MainActor
 public enum HapticManager {
     public static func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle = .light) {
         #if canImport(UIKit)

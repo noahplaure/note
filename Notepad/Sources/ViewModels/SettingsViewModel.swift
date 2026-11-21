@@ -64,11 +64,11 @@ public final class SettingsViewModel {
         Task {
             let notes = (try? await storageService.loadAllNotes()) ?? []
             let folders = (try? await storageService.listFolders()) ?? []
-            let assetsDir = await storageService.assetsDirectory
+            let assetsDir = storageService.assetsDirectory
 
             var totalBytes: Int64 = 0
-            if let enumerator = FileManager.default.enumerator(at: assetsDir, includingPropertiesForKeys: [.fileSizeKey]) {
-                for case let fileURL as URL in enumerator {
+            if let files = try? FileManager.default.contentsOfDirectory(at: assetsDir, includingPropertiesForKeys: [.fileSizeKey]) {
+                for fileURL in files {
                     if let values = try? fileURL.resourceValues(forKeys: [.fileSizeKey]),
                        let size = values.fileSize {
                         totalBytes += Int64(size)

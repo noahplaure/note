@@ -73,7 +73,7 @@ public actor DocumentStorageService {
         // Derive relative folder
         let relativeFolder = relativeFolderPath(for: url)
 
-        var note = Note(
+        let note = Note(
             id: parsed.metadata.id,
             title: parsed.metadata.title,
             content: parsed.body,
