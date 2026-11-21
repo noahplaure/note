@@ -1,0 +1,113 @@
+name: Build Notepad IPA & Run Tests
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Unit Tests
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Cache SPM
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build
+            ~/Library/Caches/org.swift.swiftpm
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/project.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode Project
+        run: xcodegen generate
+
+      - name: Determine Test Destination
+        id: sim_dest
+        run: |
+          DEVICE=$(xcrun simctl list devices available | grep -E "iPhone (15|16)" | head -1 | sed -E 's/.*\(([-0-9A-F]+)\).*/\1/')
+          if [ -z "$DEVICE" ]; then
+            DEST="platform=iOS Simulator,name=iPhone 16"
+          else
+            DEST="id=$DEVICE"
+          fi
+          echo "destination=$DEST" >> "$GITHUB_OUTPUT"
+
+      - name: Run Tests
+        run: |
+          xcodebuild test \
+            -project Notepad.xcodeproj \
+            -scheme Notepad \
+            -destination "${{ steps.sim_dest.outputs.destination }}" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+  build:
+    name: Build Unsigned IPA
+    runs-on: macos-latest
+    needs: test
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Cache SPM
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build
+            ~/Library/Caches/org.swift.swiftpm
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/project.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode Project
+        run: xcodegen generate
+
+      - name: Build & Archive
+        run: |
+          xcodebuild archive \
+            -project Notepad.xcodeproj \
+            -scheme Notepad \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath build/Notepad.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM=""
+
+      - name: Package Unsigned IPA
+        run: |
+          mkdir -p Payload
+          cp -R build/Notepad.xcarchive/Products/Applications/Notepad.app Payload/
+          zip -r Notepad.ipa Payload
+          ls -la Notepad.ipa
+
+      - name: Upload Unsigned IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Notepad-unsigned-ipa
+          path: Notepad.ipa
+          if-no-files-found: error
+
+      - name: Create GitHub Release on Tag
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Notepad.ipa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
