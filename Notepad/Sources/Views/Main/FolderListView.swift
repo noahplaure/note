@@ -30,12 +30,13 @@ public struct FolderListView: View {
                 Section("Folders") {
                     ForEach(viewModel.folders) { folder in
                         folderRow(folder: folder, count: viewModel.notes.filter { $0.folder == folder.relativePath }.count)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     viewModel.deleteFolder(folder)
                                 } label: {
-                                    Label("Delete", systemImage: "trash")
+                                    Label("Delete", systemImage: "trash.fill")
                                 }
+                                .tint(.red)
                             }
                     }
                 }
@@ -46,28 +47,26 @@ public struct FolderListView: View {
         }
         .navigationTitle("Folders")
         .toolbar {
-            ToolbarItem(placement: .bottomBar) {
-                HStack {
-                    Button {
-                        isNewFolderAlertPresented = true
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "folder.badge.plus")
-                            Text("New Folder")
-                        }
-                        .font(.system(size: 15, weight: .medium))
+            ToolbarItemGroup(placement: .bottomBar) {
+                Button {
+                    isNewFolderAlertPresented = true
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "folder.badge.plus")
+                        Text("New Folder")
+                    }
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(Color(hex: "#FFD60A"))
+                }
+
+                Spacer()
+
+                Button {
+                    isSettingsPresented = true
+                } label: {
+                    Image(systemName: "gearshape")
+                        .font(.system(size: 18))
                         .foregroundColor(Color(hex: "#FFD60A"))
-                    }
-
-                    Spacer()
-
-                    Button {
-                        isSettingsPresented = true
-                    } label: {
-                        Image(systemName: "gearshape")
-                            .font(.system(size: 18))
-                            .foregroundColor(Color(hex: "#FFD60A"))
-                    }
                 }
             }
         }

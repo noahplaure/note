@@ -56,6 +56,7 @@ public struct NoteListView: View {
                                 }
                             }
                             .listRowBackground(Color(hex: "#1C1C1E"))
+                            .listRowSeparatorTint(Color.white.opacity(0.12))
                         }
 
                         // Notes Section
@@ -67,6 +68,7 @@ public struct NoteListView: View {
                                 }
                             }
                             .listRowBackground(Color(hex: "#1C1C1E"))
+                            .listRowSeparatorTint(Color.white.opacity(0.12))
                         }
                     }
                     .scrollContentBackground(.hidden)
@@ -77,35 +79,44 @@ public struct NoteListView: View {
         .navigationTitle(viewModel.selectedFolder?.name ?? "Notes")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Menu {
-                    Picker("Sort by", selection: $viewModel.sortOption) {
-                        ForEach(SortOption.allCases) { option in
-                            Text(option.rawValue).tag(option)
+                HStack(spacing: 12) {
+                    Menu {
+                        Picker("Sort by", selection: $viewModel.sortOption) {
+                            ForEach(SortOption.allCases) { option in
+                                Text(option.rawValue).tag(option)
+                            }
                         }
+                    } label: {
+                        Image(systemName: "arrow.up.arrow.down.circle")
+                            .font(.system(size: 18))
+                            .foregroundColor(Color(hex: "#FFD60A"))
                     }
-                } label: {
-                    Image(systemName: "arrow.up.arrow.down.circle")
-                        .foregroundColor(Color(hex: "#FFD60A"))
-                }
-            }
-
-            ToolbarItem(placement: .bottomBar) {
-                HStack {
-                    Spacer()
-
-                    Text("\(viewModel.visibleNotes.count) Notes")
-                        .font(.system(size: 12))
-                        .foregroundColor(.secondary)
-
-                    Spacer()
 
                     Button {
                         _ = viewModel.createNote()
                     } label: {
                         Image(systemName: "square.and.pencil")
-                            .font(.system(size: 20))
+                            .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(Color(hex: "#FFD60A"))
                     }
+                }
+            }
+
+            ToolbarItemGroup(placement: .bottomBar) {
+                Spacer()
+
+                Text("\(viewModel.visibleNotes.count) Notes")
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundColor(.secondary)
+
+                Spacer()
+
+                Button {
+                    _ = viewModel.createNote()
+                } label: {
+                    Image(systemName: "square.and.pencil")
+                        .font(.system(size: 21, weight: .medium))
+                        .foregroundColor(Color(hex: "#FFD60A"))
                 }
             }
         }
@@ -123,27 +134,28 @@ public struct NoteListView: View {
         NavigationLink(value: note) {
             NoteRowView(note: note)
         }
-        .swipeActions(edge: .leading) {
+        .swipeActions(edge: .leading, allowsFullSwipe: true) {
             Button {
                 viewModel.togglePin(for: note)
             } label: {
                 Label(note.pinned ? "Unpin" : "Pin", systemImage: note.pinned ? "pin.slash.fill" : "pin.fill")
             }
-            .tint(Color(hex: "#FFD60A"))
+            .tint(Color(hex: "#FF9F0A")) // Standard Apple Notes Amber for Pin
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
                 viewModel.deleteNote(note)
             } label: {
-                Label("Delete", systemImage: "trash")
+                Label("Delete", systemImage: "trash.fill")
             }
+            .tint(.red) // Standard Apple Red for Delete
 
             Button {
                 noteToMove = note
             } label: {
-                Label("Move", systemImage: "folder")
+                Label("Move", systemImage: "folder.fill")
             }
-            .tint(.purple)
+            .tint(.blue) // Standard Apple Notes Blue for Move
         }
         .contextMenu {
             Button {

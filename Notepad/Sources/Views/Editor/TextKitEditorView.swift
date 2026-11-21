@@ -28,6 +28,10 @@ public struct TextKitEditorView: UIViewRepresentable {
         textView.textColor = .white
         textView.tintColor = UIColor(hex: "#FFD60A")
         textView.font = UIFont.systemFont(ofSize: fontSize)
+        textView.isEditable = true
+        textView.isSelectable = true
+        textView.isScrollEnabled = true
+        textView.isUserInteractionEnabled = true
         textView.alwaysBounceVertical = true
         textView.keyboardDismissMode = .interactive
         textView.autocapitalizationType = .sentences
@@ -35,22 +39,29 @@ public struct TextKitEditorView: UIViewRepresentable {
         textView.spellCheckingType = .yes
         textView.delegate = context.coordinator
 
-        // Custom insets for breathing room
-        textView.textContainerInset = UIEdgeInsets(top: 16, left: 16, bottom: 80, right: 16)
+        // Custom insets for comfortable writing
+        textView.textContainerInset = UIEdgeInsets(top: 16, left: 16, bottom: 120, right: 16)
         textView.textContainer.lineFragmentPadding = 0
 
         textView.text = text
+
+        // Background tap to focus anywhere
+        let tapGesture = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleTap(_:)))
+        tapGesture.cancelsTouchesInView = false
+        textView.addGestureRecognizer(tapGesture)
+
         return textView
     }
 
     public func updateUIView(_ uiView: UITextView, context: Context) {
-        if uiView.text != text {
+        // Do not overwrite text or selection while user is actively typing to prevent dropped keystrokes
+        if !uiView.isFirstResponder && uiView.text != text {
             uiView.text = text
         }
         if uiView.font?.pointSize != fontSize {
             uiView.font = UIFont.systemFont(ofSize: fontSize)
         }
-        if uiView.selectedRange != selectedRange && selectedRange.location != NSNotFound {
+        if !uiView.isFirstResponder && selectedRange.location != NSNotFound && uiView.selectedRange != selectedRange {
             uiView.selectedRange = selectedRange
         }
     }
@@ -61,22 +72,29 @@ public struct TextKitEditorView: UIViewRepresentable {
 
     public class Coordinator: NSObject, UITextViewDelegate {
         var parent: TextKitEditorView
-        private var isUpdating = false
+        private var isInternalChange = false
 
         init(_ parent: TextKitEditorView) {
             self.parent = parent
         }
 
         public func textViewDidChange(_ textView: UITextView) {
-            guard !isUpdating else { return }
-            isUpdating = true
+            guard !isInternalChange else { return }
+            isInternalChange = true
             parent.text = textView.text
             parent.onTextChange?(textView.text)
-            isUpdating = false
+            isInternalChange = false
         }
 
         public func textViewDidChangeSelection(_ textView: UITextView) {
             parent.selectedRange = textView.selectedRange
+        }
+
+        @objc func handleTap(_ gesture: UITapGestureRecognizer) {
+            guard let tv = gesture.view as? UITextView else { return }
+            if !tv.isFirstResponder {
+                tv.becomeFirstResponder()
+            }
         }
     }
 }

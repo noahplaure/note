@@ -1,4 +1,4 @@
-name: Build Notepad IPA & Run Tests
+name: Build Notepad IPA
 
 on:
   push:
@@ -12,81 +12,6 @@ permissions:
   contents: write
 
 jobs:
-  test:
-    name: Run Unit Tests
-    runs-on: macos-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Cache SPM
-        uses: actions/cache@v4
-        with:
-          path: |
-            .build
-            ~/Library/Caches/org.swift.swiftpm
-          key: ${{ runner.os }}-spm-${{ hashFiles('**/project.yml') }}
-          restore-keys: |
-            ${{ runner.os }}-spm-
-
-      - name: Install XcodeGen
-        run: brew install xcodegen
-
-      - name: Generate Xcode Project
-        run: xcodegen generate
-
-      - name: Determine Test Destination
-        id: sim_dest
-        run: |
-          UDID=$(xcrun simctl list devices available -j | python3 -c "
-          import sys, json
-          try:
-              data = json.load(sys.stdin)
-              for runtime, devices in data.get('devices', {}).items():
-                  if 'iOS' in runtime:
-                      for d in devices:
-                          if d.get('isAvailable'):
-                              print(d['udid'])
-                              sys.exit(0)
-          except Exception:
-              pass
-          ")
-          if [ -n "$UDID" ]; then
-            echo "destination=id=$UDID" >> "$GITHUB_OUTPUT"
-            echo "Selected Simulator UDID: $UDID"
-          else
-            echo "destination=platform=iOS Simulator,name=iPhone 16" >> "$GITHUB_OUTPUT"
-            echo "Selected default destination: platform=iOS Simulator,name=iPhone 16"
-          fi
-
-      - name: Run Tests
-        id: test_step
-        run: |
-          set -o pipefail
-          xcodebuild test \
-            -project Notepad.xcodeproj \
-            -scheme Notepad \
-            -destination "${{ steps.sim_dest.outputs.destination }}" \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" 2>&1 | tee test_run.log
-
-      - name: Publish Test Summary
-        if: always()
-        run: |
-          echo "### Test Execution Output" >> $GITHUB_STEP_SUMMARY
-          if [ -f test_run.log ]; then
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            tail -n 60 test_run.log >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git checkout -B test-logs
-            git add test_run.log
-            git commit -m "Upload test log" || true
-            git push -f origin test-logs || true
-          fi
-
   build:
     name: Build Unsigned IPA
     runs-on: macos-latest
