@@ -25,15 +25,31 @@ public actor SearchIndexService {
     private let dbPath: String
 
     public init(customPath: String? = nil) {
+        let path: String
         if let customPath = customPath {
-            self.dbPath = customPath
+            path = customPath
         } else {
             let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             try? FileManager.default.createDirectory(at: appSupport, withIntermediateDirectories: true)
-            self.dbPath = appSupport.appendingPathComponent("notepad_fts5.sqlite").path
+            path = appSupport.appendingPathComponent("notepad_fts5.sqlite").path
         }
-        openDatabase()
-        createTable()
+        self.dbPath = path
+
+        var dbPointer: OpaquePointer? = nil
+        if sqlite3_open(path, &dbPointer) == SQLITE_OK {
+            let sql = """
+            CREATE VIRTUAL TABLE IF NOT EXISTS notes_fts USING fts5(
+                id UNINDEXED,
+                title,
+                content,
+                folder,
+                tags,
+                tokenize='unicode61'
+            );
+            """
+            sqlite3_exec(dbPointer, sql, nil, nil, nil)
+        }
+        self.db = dbPointer
     }
 
     deinit {
@@ -42,26 +58,7 @@ public actor SearchIndexService {
         }
     }
 
-    private func openDatabase() {
-        if sqlite3_open(dbPath, &db) != SQLITE_OK {
-            db = nil
-        }
-    }
 
-    private func createTable() {
-        guard let db = db else { return }
-        let sql = """
-        CREATE VIRTUAL TABLE IF NOT EXISTS notes_fts USING fts5(
-            id UNINDEXED,
-            title,
-            content,
-            folder,
-            tags,
-            tokenize='unicode61'
-        );
-        """
-        sqlite3_exec(db, sql, nil, nil, nil)
-    }
 
     public func indexNote(_ note: Note) {
         guard let db = db else { return }

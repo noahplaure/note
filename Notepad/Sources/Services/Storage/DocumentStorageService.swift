@@ -14,7 +14,8 @@ public actor DocumentStorageService {
             self.baseDirectory = documents.appendingPathComponent("Notepad", isDirectory: true)
         }
         self.assetsDirectory = self.baseDirectory.appendingPathComponent("assets", isDirectory: true)
-        ensureDirectoriesExist()
+        try? fileManager.createDirectory(at: self.baseDirectory, withIntermediateDirectories: true)
+        try? fileManager.createDirectory(at: self.assetsDirectory, withIntermediateDirectories: true)
     }
 
     public func ensureDirectoriesExist() {
