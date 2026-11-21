@@ -21,7 +21,7 @@ public struct SearchResult: Identifiable, Sendable, Hashable {
 }
 
 public actor SearchIndexService {
-    private var db: OpaquePointer?
+    nonisolated(unsafe) private var db: OpaquePointer?
     private let dbPath: String
 
     public init(customPath: String? = nil) {

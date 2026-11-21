@@ -26,7 +26,6 @@ public struct LiquidGlassModifier: ViewModifier {
     }
 }
 
-@MainActor
 public extension View {
     func liquidGlass(cornerRadius: CGFloat = 16, borderOpacity: Double = 0.15) -> some View {
         self.modifier(LiquidGlassModifier(cornerRadius: cornerRadius, borderOpacity: borderOpacity))
