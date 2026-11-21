@@ -31,7 +31,7 @@ public actor DocumentStorageService {
 
     public func loadAllNotes() throws -> [Note] {
         ensureDirectoriesExist()
-        var notes: [Note] = []
+        var notesMap: [UUID: Note] = [:]
 
         let keys: [URLResourceKey] = [.isDirectoryKey, .creationDateKey, .contentModificationDateKey]
         guard let enumerator = fileManager.enumerator(
@@ -50,11 +50,23 @@ public actor DocumentStorageService {
             }
 
             if let note = try? readNote(from: fileURL) {
-                notes.append(note)
+                if let existing = notesMap[note.id] {
+                    // Duplicate found: retain the newer one and delete the stale duplicate file
+                    if note.modifiedAt >= existing.modifiedAt {
+                        if let oldURL = existing.fileURL {
+                            try? fileManager.removeItem(at: oldURL)
+                        }
+                        notesMap[note.id] = note
+                    } else {
+                        try? fileManager.removeItem(at: fileURL)
+                    }
+                } else {
+                    notesMap[note.id] = note
+                }
             }
         }
 
-        return notes
+        return Array(notesMap.values)
     }
 
     public func readNote(from url: URL) throws -> Note {
@@ -113,6 +125,8 @@ public actor DocumentStorageService {
                 try? fileManager.removeItem(at: existingURL)
                 targetURL = generateUniqueURL(for: updatedNote, in: folderURL)
             }
+        } else if let matchedURL = findExistingFileURL(for: updatedNote.id, in: folderURL) {
+            targetURL = matchedURL
         } else {
             targetURL = generateUniqueURL(for: updatedNote, in: folderURL)
         }
@@ -246,14 +260,37 @@ public actor DocumentStorageService {
         return items.filter { $0.pathExtension.lowercased() == "md" }.count
     }
 
+    private func findExistingFileURL(for noteId: UUID, in folderURL: URL) -> URL? {
+        guard let items = try? fileManager.contentsOfDirectory(at: folderURL, includingPropertiesForKeys: nil) else {
+            return nil
+        }
+        for item in items where item.pathExtension.lowercased() == "md" {
+            if let note = try? readNote(from: item), note.id == noteId {
+                return item
+            }
+        }
+        return nil
+    }
+
     private func generateUniqueURL(for note: Note, in folderURL: URL) -> URL {
         let titleCandidate = sanitizeFilename(note.title)
         let baseName = titleCandidate.isEmpty ? "Note" : titleCandidate
         var candidateURL = folderURL.appendingPathComponent("\(baseName).md")
 
+        if fileManager.fileExists(atPath: candidateURL.path) {
+            if let existing = try? readNote(from: candidateURL), existing.id == note.id {
+                return candidateURL
+            }
+        }
+
         var counter = 1
         while fileManager.fileExists(atPath: candidateURL.path) {
             candidateURL = folderURL.appendingPathComponent("\(baseName) \(counter).md")
+            if fileManager.fileExists(atPath: candidateURL.path) {
+                if let existing = try? readNote(from: candidateURL), existing.id == note.id {
+                    return candidateURL
+                }
+            }
             counter += 1
         }
         return candidateURL

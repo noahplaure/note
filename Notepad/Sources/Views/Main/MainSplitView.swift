@@ -22,7 +22,17 @@ public struct MainSplitView: View {
                         note: note,
                         storageService: viewModel.storageService,
                         searchIndexService: viewModel.searchIndexService,
-                        spotlightService: viewModel.spotlightService
+                        spotlightService: viewModel.spotlightService,
+                        onNoteSaved: { [weak viewModel] savedNote in
+                            Task { @MainActor [weak viewModel] in
+                                if let idx = viewModel?.notes.firstIndex(where: { $0.id == savedNote.id }) {
+                                    viewModel?.notes[idx] = savedNote
+                                }
+                                if viewModel?.selectedNote?.id == savedNote.id {
+                                    viewModel?.selectedNote = savedNote
+                                }
+                            }
+                        }
                     )
                 )
             } else {

@@ -79,7 +79,7 @@ public struct NoteListView: View {
         .navigationTitle(viewModel.selectedFolder?.name ?? "Notes")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                HStack(spacing: 12) {
+                HStack(spacing: 8) {
                     Menu {
                         Picker("Sort by", selection: $viewModel.sortOption) {
                             ForEach(SortOption.allCases) { option in
@@ -87,37 +87,54 @@ public struct NoteListView: View {
                             }
                         }
                     } label: {
-                        Image(systemName: "arrow.up.arrow.down.circle")
-                            .font(.system(size: 18))
-                            .foregroundColor(Color(hex: "#FFD60A"))
+                        ZStack {
+                            Circle()
+                                .fill(Color.white.opacity(0.12))
+                                .frame(width: 34, height: 34)
+                            Image(systemName: "arrow.up.arrow.down")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(Color(hex: "#FFD60A"))
+                        }
+                        .frame(width: 34, height: 34)
                     }
+                    .buttonStyle(.plain)
 
                     Button {
                         _ = viewModel.createNote()
                     } label: {
-                        Image(systemName: "square.and.pencil")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(Color(hex: "#FFD60A"))
+                        ZStack {
+                            Circle()
+                                .fill(Color.white.opacity(0.12))
+                                .frame(width: 34, height: 34)
+                            Image(systemName: "square.and.pencil")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundColor(Color(hex: "#FFD60A"))
+                                .offset(x: 0.5, y: -0.5)
+                        }
+                        .frame(width: 34, height: 34)
                     }
+                    .buttonStyle(.plain)
                 }
             }
 
             ToolbarItemGroup(placement: .bottomBar) {
                 Spacer()
 
-                Text("\(viewModel.visibleNotes.count) Notes")
-                    .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(.secondary)
-
-                Spacer()
-
                 Button {
                     _ = viewModel.createNote()
                 } label: {
-                    Image(systemName: "square.and.pencil")
-                        .font(.system(size: 21, weight: .medium))
-                        .foregroundColor(Color(hex: "#FFD60A"))
+                    ZStack {
+                        Circle()
+                            .fill(Color.white.opacity(0.12))
+                            .frame(width: 42, height: 42)
+                        Image(systemName: "square.and.pencil")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(Color(hex: "#FFD60A"))
+                            .offset(x: 0.5, y: -0.5)
+                    }
+                    .frame(width: 42, height: 42)
                 }
+                .buttonStyle(.plain)
             }
         }
         .sheet(isPresented: $isFilterSheetPresented) {
@@ -134,7 +151,7 @@ public struct NoteListView: View {
         NavigationLink(value: note) {
             NoteRowView(note: note)
         }
-        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+        .swipeActions(edge: .leading, allowsFullSwipe: false) {
             Button {
                 viewModel.togglePin(for: note)
             } label: {
@@ -142,8 +159,8 @@ public struct NoteListView: View {
             }
             .tint(Color(hex: "#FF9F0A")) // Standard Apple Notes Amber for Pin
         }
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button(role: .destructive) {
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            Button {
                 viewModel.deleteNote(note)
             } label: {
                 Label("Delete", systemImage: "trash.fill")

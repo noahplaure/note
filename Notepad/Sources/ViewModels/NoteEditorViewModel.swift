@@ -29,12 +29,14 @@ public final class NoteEditorViewModel {
     private let searchIndexService: SearchIndexService
     private let spotlightService: SpotlightIndexService
     private let debouncer = Debouncer(delay: 0.6)
+    private let onNoteSaved: (@Sendable (Note) -> Void)?
 
     public init(
         note: Note,
         storageService: DocumentStorageService = DocumentStorageService(),
         searchIndexService: SearchIndexService = SearchIndexService(),
-        spotlightService: SpotlightIndexService = SpotlightIndexService.shared
+        spotlightService: SpotlightIndexService = SpotlightIndexService.shared,
+        onNoteSaved: (@Sendable (Note) -> Void)? = nil
     ) {
         self.note = note
         self.title = note.title
@@ -42,6 +44,7 @@ public final class NoteEditorViewModel {
         self.storageService = storageService
         self.searchIndexService = searchIndexService
         self.spotlightService = spotlightService
+        self.onNoteSaved = onNoteSaved
     }
 
     public func updateTitle(_ newTitle: String) {
@@ -76,6 +79,7 @@ public final class NoteEditorViewModel {
             let saved = try await storageService.saveNote(note)
             self.note = saved
             self.isSaving = false
+            onNoteSaved?(saved)
             await searchIndexService.indexNote(saved)
             spotlightService.index(note: saved)
         } catch {
@@ -132,8 +136,40 @@ public final class NoteEditorViewModel {
     }
 
     public func setAlignment(_ alignment: TextAlignment) {
-        guard alignment != .left else { return }
-        wrapSelection(prefix: "<div align=\"\(alignment.rawValue)\">", suffix: "</div>")
+        let nsText = content as NSString
+        if selectedRange.length > 0 && selectedRange.location != NSNotFound && selectedRange.location + selectedRange.length <= nsText.length {
+            let selectedText = nsText.substring(with: selectedRange)
+            let cleanText = selectedText
+                .replacingOccurrences(of: "<div align=\"left\">", with: "")
+                .replacingOccurrences(of: "<div align=\"center\">", with: "")
+                .replacingOccurrences(of: "<div align=\"right\">", with: "")
+                .replacingOccurrences(of: "<div align=\"justify\">", with: "")
+                .replacingOccurrences(of: "</div>", with: "")
+            let wrapped = alignment == .left ? cleanText : "<div align=\"\(alignment.rawValue)\">\(cleanText)</div>"
+            let newText = nsText.replacingCharacters(in: selectedRange, with: wrapped)
+            updateContent(newText)
+            selectedRange = NSRange(location: selectedRange.location, length: (wrapped as NSString).length)
+        } else {
+            let loc = min(selectedRange.location, nsText.length)
+            let lineRange = nsText.lineRange(for: NSRange(location: loc, length: 0))
+            var line = nsText.substring(with: lineRange)
+            let hasNewline = line.hasSuffix("\n")
+            if hasNewline { line.removeLast() }
+
+            let cleanLine = line
+                .replacingOccurrences(of: "<div align=\"left\">", with: "")
+                .replacingOccurrences(of: "<div align=\"center\">", with: "")
+                .replacingOccurrences(of: "<div align=\"right\">", with: "")
+                .replacingOccurrences(of: "<div align=\"justify\">", with: "")
+                .replacingOccurrences(of: "</div>", with: "")
+
+            let wrapped = (alignment == .left ? cleanLine : "<div align=\"\(alignment.rawValue)\">\(cleanLine)</div>") + (hasNewline ? "\n" : "")
+            let newText = nsText.replacingCharacters(in: lineRange, with: wrapped)
+            updateContent(newText)
+            let cursorOffset = max(0, (wrapped as NSString).length - (hasNewline ? 1 : 0))
+            selectedRange = NSRange(location: lineRange.location + cursorOffset, length: 0)
+        }
+        HapticManager.impact(.light)
     }
 
     public func applyHighlight(colorHex: String) {

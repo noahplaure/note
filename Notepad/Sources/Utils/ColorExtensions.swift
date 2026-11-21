@@ -6,7 +6,12 @@ import UIKit
 
 extension Color {
     public init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        let cleanHex = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+        if cleanHex.lowercased() == "transparent" {
+            self.init(.sRGB, red: 0, green: 0, blue: 0, opacity: 0)
+            return
+        }
+        let hex = cleanHex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
         Scanner(string: hex).scanHexInt64(&int)
         let a, r, g, b: UInt64
@@ -48,7 +53,12 @@ extension Color {
 #if canImport(UIKit)
 extension UIColor {
     public convenience init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        let cleanHex = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+        if cleanHex.lowercased() == "transparent" {
+            self.init(white: 0, alpha: 0)
+            return
+        }
+        let hex = cleanHex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
         Scanner(string: hex).scanHexInt64(&int)
         let a, r, g, b: UInt64

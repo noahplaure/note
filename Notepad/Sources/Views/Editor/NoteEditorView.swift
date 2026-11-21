@@ -115,9 +115,17 @@ public struct NoteEditorView: View {
                     viewModel.isInfoSheetPresented = true
                     HapticManager.selection()
                 } label: {
-                    Image(systemName: "info.circle")
-                        .foregroundColor(Color(hex: "#FFD60A"))
+                    ZStack {
+                        Circle()
+                            .fill(Color.white.opacity(0.12))
+                            .frame(width: 34, height: 34)
+                        Image(systemName: "info")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(Color(hex: "#FFD60A"))
+                    }
+                    .frame(width: 34, height: 34)
                 }
+                .buttonStyle(.plain)
 
                 // Share Menu
                 Menu {
@@ -150,9 +158,18 @@ public struct NoteEditorView: View {
                         Label("Share as Plain Text", systemImage: "text.alignleft")
                     }
                 } label: {
-                    Image(systemName: "square.and.arrow.up")
-                        .foregroundColor(Color(hex: "#FFD60A"))
+                    ZStack {
+                        Circle()
+                            .fill(Color.white.opacity(0.12))
+                            .frame(width: 34, height: 34)
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(Color(hex: "#FFD60A"))
+                            .offset(y: -1) // Optical centering for upward arrow
+                    }
+                    .frame(width: 34, height: 34)
                 }
+                .buttonStyle(.plain)
             }
         }
         // Sheets
