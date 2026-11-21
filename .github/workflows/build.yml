@@ -8,6 +8,9 @@ on:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   test:
     name: Run Unit Tests
@@ -76,6 +79,12 @@ jobs:
             echo '```' >> $GITHUB_STEP_SUMMARY
             tail -n 60 test_run.log >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git checkout -B test-logs
+            git add test_run.log
+            git commit -m "Upload test log" || true
+            git push -f origin test-logs || true
           fi
 
   build:
@@ -124,6 +133,12 @@ jobs:
             echo '```' >> $GITHUB_STEP_SUMMARY
             tail -n 80 archive.log >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git checkout -B build-logs
+            git add archive.log
+            git commit -m "Upload build failure log" || true
+            git push -f origin build-logs || true
           fi
 
       - name: Package Unsigned IPA
